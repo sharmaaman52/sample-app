@@ -65,7 +65,7 @@ pipeline {
         stage('docker container') {
             steps { 
                 sh '''
-                docker run -d -p 8080:80 --name sample-app aman9372/sample-app:v1.8
+                docker run -d -p 8080:80 --name sample-app aman9372/sample-app:$IMAGE_TAG
                 '''
             }
         }    
