@@ -1,5 +1,10 @@
 pipeline {
     agent { label 'ec2' }
+    
+    environment  {
+        IMAGE_NAME = "aman9372/sample-app-html" 
+        IMAGE_TAG = "v1.${BUILD_NUMBER}" 
+    }   
 
     stages {
 
@@ -26,13 +31,36 @@ pipeline {
                 '''
             }
         }
-
-        stage('Archive Artifact') {
+        
+        stage('Docker build') {
             steps {
-                archiveArtifacts artifacts: 'build/index.html'
+                sh '''
+                docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                '''
             }
         }
-    }
+        
+        stage('Docker login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'Dockerhub-credential',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }    
+            }
+        }
+        
+        stage('docker push') {
+            steps {
+                sh '''
+                docker push $IMAGE_NAME:$IMAGE_TAG
+                '''
+            }
+        }
 
     post {
         success {
