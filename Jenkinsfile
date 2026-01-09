@@ -1,10 +1,10 @@
 pipeline {
     agent { label 'ec2' }
-    
-    environment  {
-        IMAGE_NAME = "aman9372/sample-app-html" 
-        IMAGE_TAG = "v1.${BUILD_NUMBER}" 
-    }   
+
+    environment {
+        IMAGE_NAME = "aman9372/sample-app"
+        IMAGE_TAG  = "v1.${BUILD_NUMBER}"
+    }
 
     stages {
 
@@ -31,16 +31,16 @@ pipeline {
                 '''
             }
         }
-        
-        stage('Docker build') {
+
+        stage('Docker Build') {
             steps {
                 sh '''
-                docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                  docker build -t $IMAGE_NAME:$IMAGE_TAG .
                 '''
             }
         }
-        
-        stage('Docker login') {
+
+        stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'Dockerhub-credential',
@@ -48,19 +48,26 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                      echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                     '''
-                }    
+                }
             }
         }
-        
-        stage('docker push') {
+
+        stage('Docker Push') {
             steps {
                 sh '''
-                docker push $IMAGE_NAME:$IMAGE_TAG
+                  docker push $IMAGE_NAME:$IMAGE_TAG
                 '''
             }
         }
+
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'index.html'
+            }
+        }
+    }
 
     post {
         success {
@@ -69,6 +76,8 @@ pipeline {
         failure {
             echo "Pipeline failed ❌"
         }
+        always {
+            sh 'docker logout || true'
+        }
     }
 }
-
