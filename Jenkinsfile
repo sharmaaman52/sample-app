@@ -62,6 +62,14 @@ pipeline {
             }
         }
 
+        stage('docker container') {
+            steps { 
+                sh '''
+                docker run -d -p 8080:80 --name sample-app aman9372/sample-app:v1.8
+                '''
+            }
+        }    
+
         stage('Archive Artifact') {
             steps {
                 archiveArtifacts artifacts: 'index.html'
