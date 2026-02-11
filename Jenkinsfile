@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'ec2' }
+    agent { label 'EC2' }
 
     environment {
         IMAGE_NAME = "aman9372/new-app"
