@@ -2,7 +2,7 @@ pipeline {
     agent { label 'ec2' }
 
     environment {
-        IMAGE_NAME = "aman9372/sample-app"
+        IMAGE_NAME = "aman9372/new-app"
         IMAGE_TAG  = "v1.${BUILD_NUMBER}"
     }
 
@@ -65,7 +65,7 @@ pipeline {
         stage('docker container') {
             steps { 
                 sh '''
-                docker run -d -p 8080:80 --name sample-app aman9372/sample-app:$IMAGE_TAG
+                docker run -d -p 8080:80 --name new-app aman9372/new-app:$IMAGE_TAG
                 '''
             }
         }    
